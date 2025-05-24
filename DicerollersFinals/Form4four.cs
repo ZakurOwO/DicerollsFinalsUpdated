@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -23,7 +23,10 @@ namespace DicerollersFinals
         private Timer revealTimer;
         private int revealIndex = 0;
 
-        public Form4()
+
+
+       
+        public Form4()  // Main form constructor - sets up timers and initializes components
         {
             InitializeComponent();
             InitializeRollTimer();
@@ -31,14 +34,17 @@ namespace DicerollersFinals
         }
 
 
-        private void InitializeRevealTimer()
+    
+        private void InitializeRevealTimer()     // Initializes the timer for revealing dice one by one
         {
             revealTimer = new Timer();
             revealTimer.Interval = 1000; // 1 second between reveals
             revealTimer.Tick += RevealTimer_Tick;
         }
 
-        private void InitializeRollTimer()
+        
+
+        private void InitializeRollTimer() // Initializes the timer that animates rolling of the dice
         {
             rollTimer = new Timer();
             rollTimer.Interval = 100;
@@ -46,11 +52,12 @@ namespace DicerollersFinals
         }
 
 
-        private void RevealTimer_Tick(object sender, EventArgs e)
+        private void RevealTimer_Tick(object sender, EventArgs e) // Handles revealing dice values one at a time and shows their multipliers
         {
             if (revealIndex < 3)
             {
                 // Stop this die and show its multiplier
+        
                 diceStopped[revealIndex] = true;
                 UpdateMultiplierDisplay(revealIndex);
                 revealIndex++;
@@ -70,7 +77,7 @@ namespace DicerollersFinals
             }
         }
 
-        private void RollTimer_Tick(object sender, EventArgs e)
+        private void RollTimer_Tick(object sender, EventArgs e) // Animates the dice while rolling, stops when `diceStopped[i]` is true
         {
             PictureBox[] dicePics = { PicDice1, PicDice2, PicDice3 };
             int[] finalValues = { finalDice1, finalDice2, finalDice3 };
@@ -89,13 +96,13 @@ namespace DicerollersFinals
             }
         }
 
-        private void Form4_Load(object sender, EventArgs e)
+        private void Form4_Load(object sender, EventArgs e) // Initializes UI elements like wallet balance and payout label on form load
         {
             walletBalanceLabel.Text = currentBalance.ToString();
             totalPayoutLabel.Text = "0";
         }
 
-        private void ShowSingleDie(PictureBox pic, int value)
+        private void ShowSingleDie(PictureBox pic, int value) // Updates the PictureBox with the appropriate dice face image
         {
             switch (value)
             {
@@ -108,7 +115,7 @@ namespace DicerollersFinals
             }
         }
 
-        private void ShowCurrentMultiplier(int dieIndex)
+        private void ShowCurrentMultiplier(int dieIndex) // Calculates and displays the multiplier for a specific die
         {
             int[] diceValues = { finalDice1, finalDice2, finalDice3 };
             int gap = Math.Abs(diceValues[dieIndex] - userPrediction);
@@ -128,7 +135,7 @@ namespace DicerollersFinals
             }
         }
 
-        private void rollButton_Click(object sender, EventArgs e)
+        private void rollButton_Click(object sender, EventArgs e) // Handles logic when the "Roll" button is clicked
         {
             if (!isRolling)
             {
@@ -176,7 +183,7 @@ namespace DicerollersFinals
             }
         }
 
-        private void UpdateMultiplierDisplay(int dieIndex)
+        private void UpdateMultiplierDisplay(int dieIndex) // Updates multiplier label display based on the die's result and prediction
         {
             int[] diceValues = { finalDice1, finalDice2, finalDice3 };
             int dieValue = diceValues[dieIndex];
@@ -211,7 +218,7 @@ namespace DicerollersFinals
             }
         }
 
-        private void DisplayRollOutcome()
+        private void DisplayRollOutcome() // Displays the final outcome, updates wallet, and offers replay prompt
         {
             // Calculate total payout
             double totalMultiplier = 0;
@@ -282,7 +289,7 @@ namespace DicerollersFinals
             }
         }
 
-        private double CalculateSingleDieMultiplier(int dieValue)
+        private double CalculateSingleDieMultiplier(int dieValue) // Calculates multiplier for a single die based on distance from prediction
         {
             int gap = Math.Abs(dieValue - userPrediction);
             return GetBonusFromGap(gap);
@@ -290,7 +297,7 @@ namespace DicerollersFinals
 
 
 
-        private void CalculateFinalDiceResults()
+        private void CalculateFinalDiceResults() // Determines final dice results, includes logic for cheat code pattern
         {
             bool patternMatchedThisRoll = false;
 
@@ -335,7 +342,7 @@ namespace DicerollersFinals
             }
         }
 
-        private int BiasedRoll(int userPrediction)
+        private int BiasedRoll(int userPrediction) // Generates a biased random number with higher chance of larger gaps
         {
             int roll;
             do
@@ -347,7 +354,7 @@ namespace DicerollersFinals
             } while (true);
         }
 
-        private void ShowDice(int d1, int d2, int d3)
+        private void ShowDice(int d1, int d2, int d3) // Displays all three dice with their values
         {
             PictureBox[] dicePics = { PicDice1, PicDice2, PicDice3 };
             int[] values = { d1, d2, d3 };
@@ -359,6 +366,7 @@ namespace DicerollersFinals
         }
 
         private int CalculatePayout(int d1, int d2, int d3, int bet, int userPrediction, out double totalMultiplier)
+        // Computes the total payout based on final dice and prediction
         {
             int[] dice = { d1, d2, d3 };
             totalMultiplier = 0;
@@ -369,14 +377,7 @@ namespace DicerollersFinals
                 return (int)(bet * totalMultiplier);
             }
 
-            bool isPairMatch = false;
-            if ((d1 == d2 && d1 == userPrediction) ||
-                (d1 == d3 && d1 == userPrediction) ||
-                (d2 == d3 && d2 == userPrediction))
-            {
-                isPairMatch = true;
-                totalMultiplier += 0.75 * 2;
-            }
+          
 
             for (int i = 0; i < 3; i++)
             {
@@ -388,18 +389,20 @@ namespace DicerollersFinals
         }
 
         private double GetBonusFromGap(int gap)
+        // Returns multiplier based on gap between predicted number and die result
         {
             switch (gap)
             {
-                case 1: return 0.30;
-                case 2: return 0.25;
-                case 3: return 0.20;
-                default: return 0.15;
+                case 1: return 0.25;
+                case 2: return 0.20;
+                case 3: return 0.15;
+                default: return 0.10;
 
             }
         }
 
         private void Exit_Click(object sender, EventArgs e)
+        // Exits the application
         {
             Environment.Exit(0);
         }
